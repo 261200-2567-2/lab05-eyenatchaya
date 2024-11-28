@@ -1,14 +1,14 @@
 // Concrete Character: Mage
-// Mage (นักเวทย์) ที่มีความสามารถในการใช้เวทมนตร์ (Ability) และมีการปรับสเตตัส เช่น Strength, Intelligence, และ Agility
 class Mage implements Character {
     private String name;
     private int level;
-    private int strength = 3; // พลังในการโจมตี
-    private int intelligence = 12; // ใช้เวทมนตร์และเพิ่มพลังในการใช้สกิลหรือมานา
-    private int agility = 6; // ความคล่องแคล่วและความเร็วของตัวละคร รวมถึงการหลบหลีกและการโจมตีที่รวดเร็ว
-    private Accessory equippedAccessory; // เก็บอุปกรณ์ที่ติดตั้ง
+    private int strength = 3; // พลังโจมตี
+    private int intelligence = 12; // พลังเวทมนตร์
+    private int agility = 6; // ความเร็วและการหลบหลีก
+    private int energy = 100; // พลังงาน
+    private Accessory equippedAccessory; // อุปกรณ์ที่ติดตั้ง
 
-    // นักเวทย์
+    // Constructor
     public Mage(String name, int level) {
         this.name = name;
         this.level = level;
@@ -24,53 +24,64 @@ class Mage implements Character {
         return level;
     }
 
-    //  Ability Method
+    // ใช้ Ability โดยลดพลังงาน
     @Override
-    public String useAbility(String abilityName) { // ใช้ความสามารถ (Ability) ของ Mage
-        return "Used " + abilityName + " as a Mage!"; //  ถ้าเรียก useAbility("Fireball") ฟังก์ชันจะคืนค่าเป็น "Used Fireball as a Mage!"
+    public String useAbility(String abilityName) {
+        int energyCost = 10; // พลังงานที่ใช้
+        if (energy >= energyCost) {
+            energy -= energyCost;
+            return name + " casts " + abilityName + " as a Mage!";
+        }
+        return name + " doesn't have enough energy to cast " + abilityName + "!";
     }
 
-    // เพิ่มค่า Strength ให้กับตัวละคร
-    // เช่น ถ้า strength = 10 และเรียก increaseStrength(5), strength จะเพิ่มเป็น 15
+    // ลดพลังงาน
+    public void reduceEnergy(int amount) {
+        energy = Math.max(0, energy - amount);
+    }
+
+    // เพิ่มพลังงาน
+    public void increaseEnergy(int amount) {
+        energy = Math.min(100, energy + amount);
+    }
+
+    // ฟื้นฟูพลังงาน
+    public void regenerateEnergy() {
+        increaseEnergy(5); // ฟื้นฟู 5 หน่วย
+    }
+
+    @Override
+    public int getEnergy() {
+        return energy; // คืนค่าพลังงาน
+    }
+
+    // ปรับค่าความสามารถพื้นฐาน
     public void increaseStrength(int amount) { strength += amount; }
-
-    // เพิ่มค่า Intelligence ให้กับตัวละคร
-    public void increaseIntelligence(int amount) {
-        intelligence += amount;
-    }
-
-    // เพิ่มค่า Agility ให้กับตัวละคร
-    public void increaseAgility(int amount) {
-        agility += amount;
-    }
+    public void increaseIntelligence(int amount) { intelligence += amount; }
+    public void increaseAgility(int amount) { agility += amount; }
 
     @Override
-    public void equipAccessory(Accessory accessory) { // ติดตั้งอุปกรณ์ใหม่
+    public void equipAccessory(Accessory accessory) {
         if (equippedAccessory != null) {
-            unequipAccessory(equippedAccessory); // ถ้ามีอุปกรณ์ติดตั้งแล้วให้ถอดก่อน
+            unequipAccessory(equippedAccessory); // ถอดอุปกรณ์ที่ติดตั้งอยู่
         }
         equippedAccessory = accessory;
-        accessory.applyEffect(this); // ติดตั้งอุปกรณ์ใหม่
+        accessory.applyEffect(this); // ใช้ผลของอุปกรณ์ใหม่
     }
 
-    // ถอดอุปกรณ์ที่กำลังใช้ออก
-    // การถอดอุปกรณ์จะทำการถอดผลกระทบผ่านฟังก์ชัน removeEffect
     @Override
     public void unequipAccessory(Accessory accessory) {
         if (equippedAccessory == accessory) {
-            accessory.removeEffect(this); // ถอดอุปกรณ์ออก
+            accessory.removeEffect(this); // ถอดผลกระทบของอุปกรณ์
             equippedAccessory = null;
         }
     }
 
     @Override
-    public String toString() { // แสดงข้อมูลของตัวละครในรูปแบบของข้อความ
-        return "Mage{" +
-                "name='" + name + '\'' +
-                ", level=" + level +
-                ", strength=" + strength +
-                ", intelligence=" + intelligence +
-                ", agility=" + agility +
-                '}';
+    public String toString() {
+        return String.format(
+                "Mage{name='%s', level=%d, strength=%d, intelligence=%d, agility=%d, energy=%d}",
+                name, level, strength, intelligence, agility, energy
+        );
     }
 }
